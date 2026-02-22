@@ -1,0 +1,134 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", ui-serif, Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+body {
+  background-color: #fcfcfc;
+  color: #111827;
+}
+
+/* Grid patterns */
+.bg-grid-pattern {
+  background-image:
+    linear-gradient(to right, rgba(0,0,0,0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0,0,0,0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.bg-grid-pattern-light {
+  background-image:
+    linear-gradient(to right, rgba(0,0,0,0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0,0,0,0.02) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Dot pattern */
+.bg-dot-pattern {
+  background-image: radial-gradient(circle, rgba(0,0,0,0.08) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Hatching patterns */
+.bg-hatch {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 4px,
+    rgba(0,0,0,0.04) 4px,
+    rgba(0,0,0,0.04) 5px
+  );
+}
+
+.bg-hatch-dense {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.06) 2px,
+    rgba(0,0,0,0.06) 3px
+  );
+}
+
+.bg-hatch-cross {
+  background-image:
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 4px,
+      rgba(0,0,0,0.03) 4px,
+      rgba(0,0,0,0.03) 5px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 4px,
+      rgba(0,0,0,0.03) 4px,
+      rgba(0,0,0,0.03) 5px
+    );
+}
+
+/* Decorative corner hatching */
+.corner-hatch::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 120px;
+  height: 120px;
+  background-image: radial-gradient(circle, rgba(0,0,0,0.12) 1px, transparent 1px);
+  background-size: 8px 8px;
+  mask-image: linear-gradient(135deg, transparent 40%, black);
+  -webkit-mask-image: linear-gradient(135deg, transparent 40%, black);
+  pointer-events: none;
+}
+
+.corner-hatch-bl::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100px;
+  height: 100px;
+  background-image: radial-gradient(circle, rgba(0,0,0,0.10) 1px, transparent 1px);
+  background-size: 8px 8px;
+  mask-image: linear-gradient(-45deg, transparent 40%, black);
+  -webkit-mask-image: linear-gradient(-45deg, transparent 40%, black);
+  pointer-events: none;
+}
+
+/* Step connector line */
+.step-connector {
+  position: relative;
+}
+.step-connector::before {
+  content: '';
+  position: absolute;
+  left: 14px;
+  top: 40px;
+  bottom: -20px;
+  width: 1px;
+  border-left: 2px dashed #d1d5db;
+}
+
+/* Code block styling */
+.code-block {
+  background: #1f2937;
+  border-radius: 8px;
+  padding: 16px 20px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.6;
+  color: #e5e7eb;
+  overflow-x: auto;
+}
+
+.code-block .keyword { color: #c084fc; }
+.code-block .fn { color: #60a5fa; }
+.code-block .string { color: #34d399; }
+.code-block .comment { color: #6b7280; }
+.code-block .number { color: #fbbf24; }
