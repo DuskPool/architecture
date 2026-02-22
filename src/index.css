@@ -7,6 +7,10 @@
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background-color: #fcfcfc;
   color: #111827;

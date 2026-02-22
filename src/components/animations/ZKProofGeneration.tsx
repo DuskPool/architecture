@@ -9,7 +9,7 @@ export default function ZKProofGeneration() {
           <rect x="-12" y="-22" width="30" height="40" fill="#fff" stroke="#d1d5db" strokeWidth="2" rx="2" />
           <rect x="-9" y="-19" width="30" height="40" fill="#fff" stroke="#9ca3af" strokeWidth="2" rx="2" />
         </g>
-        <g id="circuit">
+        <g id="zk-circuit-icon">
           <rect x="-40" y="-40" width="80" height="80" fill="#1f2937" rx="8" />
           <path d="M -40 -20 L -20 -20 L -20 0 L 0 0 M 40 20 L 20 20 L 20 0 L 0 0 M -20 40 L -20 20 L 0 20 M 20 -40 L 20 -20 L 0 -20" fill="none" stroke="#3b82f6" strokeWidth="2" />
           <circle cx="0" cy="0" r="15" fill="#8b5cf6" />

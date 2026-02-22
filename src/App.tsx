@@ -164,7 +164,7 @@ export default function App() {
           </div>
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-500">
             <a href="#walkthrough" className="hover:text-gray-900 transition-colors">Architecture</a>
-            <a href="#circuit" className="hover:text-gray-900 transition-colors">ZK Circuit</a>
+            <a href="#circuit" onClick={(e) => { e.preventDefault(); const el = document.getElementById('circuit'); if (el) { window.history.pushState(null, '', '#circuit'); el.scrollIntoView({ behavior: 'smooth' }); }}} className="hover:text-gray-900 transition-colors">ZK Circuit</a>
             <a href="#contracts" className="hover:text-gray-900 transition-colors">Contracts</a>
           </nav>
           <div className="flex items-center gap-4">
@@ -178,7 +178,7 @@ export default function App() {
 
       <main>
         {/* ─── Scroll-Driven Walkthrough ─────────────────────────── */}
-        <section id="walkthrough" className="max-w-7xl mx-auto px-6 relative">
+        <section id="walkthrough" className="max-w-7xl mx-auto px-6 relative scroll-mt-20">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 lg:gap-12">
             {/* Left: Sticky Animation Panel */}
             <div className="hidden lg:block">
@@ -353,7 +353,7 @@ export default function App() {
         </section>
 
         {/* ─── ZK Circuit Deep Dive ──────────────────────────────── */}
-        <section id="circuit" className="py-24 px-6 border-t border-gray-200">
+        <section id="circuit" className="py-24 px-6 border-t border-gray-200 scroll-mt-20">
           <div className="max-w-7xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
               {/* Left: Text */}
@@ -467,7 +467,7 @@ export default function App() {
         </section>
 
         {/* ─── Contracts Section ──────────────────────────────────── */}
-        <section id="contracts" className="py-24 px-6 bg-[#fafafa] border-t border-gray-200 relative">
+        <section id="contracts" className="py-24 px-6 bg-[#fafafa] border-t border-gray-200 relative scroll-mt-20">
           <div className="absolute inset-0 bg-hatch opacity-20 pointer-events-none" />
           <div className="max-w-7xl mx-auto relative z-10">
             <div className="mb-16 text-center">
