@@ -12,6 +12,7 @@ import ZKProofGeneration from './components/animations/ZKProofGeneration';
 import OnChainVerification from './components/animations/OnChainVerification';
 import AtomicSettlement from './components/animations/AtomicSettlement';
 import FullFlowAnimation from './components/animations/FullFlowAnimation';
+import MermaidDiagram from './components/MermaidDiagram';
 
 /* ─── Step data ────────────────────────────────────────────────────── */
 
@@ -25,6 +26,11 @@ const STEPS: StepData[] = [
       'The Merkle tree has a depth of 20, supporting up to 1,048,576 participants. Each participant receives a tree index that they\'ll use later to generate Merkle inclusion proofs during settlement - proving they\'re whitelisted without revealing who they are.',
     ],
     code: 'Registry.register_participant(admin, participant)\n  -> Poseidon(id_hash) inserted at tree_index\n  -> whitelist_root updated',
+    mermaid: `graph TD
+  A[KYC Operator] -->|verify| B[Institution]
+  B -->|Poseidon hash| C[id_hash]
+  C -->|insert leaf| D[Merkle Tree]
+  D -->|update| E[whitelist_root]`,
     privatePublic: {
       private: 'Institution identity, KYC documents',
       public: 'Poseidon(id_hash) leaf, tree index, updated Merkle root',
@@ -39,6 +45,10 @@ const STEPS: StepData[] = [
       'Locked amounts are reserved for pending orders and cannot be withdrawn. This ensures that when a trade settles, both sides have sufficient funds for the atomic swap.',
     ],
     code: 'Settlement.deposit(depositor, asset, amount)\n  -> escrow[(addr, asset)] += amount\n  -> balance returned',
+    mermaid: `graph TD
+  A[Trader Wallet] -->|deposit| B[Settlement Contract]
+  B -->|track balance| C["escrow(addr, asset) += amount"]
+  C --> D[Funds locked for trading]`,
     privatePublic: {
       private: 'Trading strategy, intended counterparties',
       public: 'Deposit amount, asset address, depositor address',
@@ -53,6 +63,10 @@ const STEPS: StepData[] = [
       'Price and quantity remain completely hidden inside the commitment. The nonce provides uniqueness, while the secret prevents brute-force preimage attacks on the hash.',
     ],
     code: 'commitment = Poseidon(\n  asset, side, qty, price, nonce, secret\n)\nOrderbook.submit_order(\n  trader, commitment, asset, side, expiry\n)',
+    mermaid: `graph TD
+  A[Order Details] -->|Poseidon hash| B[commitment]
+  B -->|submit on-chain| C[Orderbook Contract]
+  C -->|stores| D[commitment + asset + side]`,
     privatePublic: {
       private: 'Price, quantity, nonce, secret',
       public: 'Poseidon commitment hash, asset address, side (buy/sell)',
@@ -68,6 +82,11 @@ const STEPS: StepData[] = [
       'When a buy price meets or exceeds a sell price, a match is found. The execution price is set as the midpoint of the two limit prices. The match record is posted on-chain with both commitment hashes.',
     ],
     code: 'buy.price >= sell.price\n  -> exec_price = (buy.price + sell.price) / 2\n  -> Orderbook.record_match(\n       match_id, buy_commit, sell_commit,\n       asset, qty, exec_price\n     )',
+    mermaid: `graph TD
+  A[Buy Order] --> C{Price Match?}
+  B[Sell Order] --> C
+  C -->|buy >= sell| D["exec_price = (buy + sell) / 2"]
+  D --> E[Record Match on-chain]`,
     privatePublic: {
       private: 'Individual limit prices, trader identities, matching logic',
       public: 'Match ID, both commitment hashes, execution price, quantity',
@@ -82,6 +101,12 @@ const STEPS: StepData[] = [
       'The proof is only 256 bytes yet encodes all of these constraints. Generation takes 30-60 seconds off-chain using the ceremony-generated proving key (zkey) and compiled circuit (WASM).',
     ],
     code: 'const { proof, publicSignals } = \n  await groth16.prove(\n    circuit.wasm,\n    circuit.zkey,\n    witnessInputs     // private + public\n  )\n// proof = 256 bytes (pi_a, pi_b, pi_c)\n// publicSignals = 7 field elements',
+    mermaid: `graph TD
+  A[Private Inputs] --> D[Circom Circuit]
+  B[Public Inputs] --> D
+  C[Proving Key] --> D
+  D -->|groth16.prove| E[Proof 256 bytes]
+  D --> F[7 Public Signals]`,
     privatePublic: {
       private: 'Buyer/seller ID hashes, Merkle proofs, order secrets & nonces',
       public: 'Nullifier hash, both commitments, asset hash, quantity, price, whitelist root',
@@ -96,6 +121,12 @@ const STEPS: StepData[] = [
       'Then it calls bn254_multi_pairing_check with 4 point pairs to verify the Groth16 equation: e(A,B) = e(alpha,beta) * e(vk_x,gamma) * e(C,delta). This takes only 5-10ms on-chain thanks to Stellar\'s X-Ray Protocol host functions.',
     ],
     code: 'Verifier.verify_proof(vk, proof, pub_signals)\n  -> vk_x = IC[0]\n       + IC[1]*s[0] + IC[2]*s[1] + ...\n  -> bn254_multi_pairing_check(\n       [-A, alpha, vk_x, C],\n       [ B, beta, gamma, delta]\n     ) == true',
+    mermaid: `graph TD
+  A[Proof + 7 Signals] --> B[Verifier Contract]
+  B -->|compute vk_x| C[IC linear combination]
+  C -->|bn254_multi_pairing_check| D{Valid?}
+  D -->|yes| E[Settlement proceeds]
+  D -->|no| F[Transaction rejected]`,
     privatePublic: {
       private: 'Nothing - verification is fully public',
       public: 'Proof bytes (256B), 7 public signals, verification key',
@@ -110,6 +141,16 @@ const STEPS: StepData[] = [
       'If the proof is valid, both parties have authorized, and the nullifier hasn\'t been used before, the Settlement contract executes an atomic swap of escrowed balances. Both transfers succeed or neither does — atomicity is guaranteed by the Soroban runtime. The nullifier is stored on-chain permanently to prevent replay attacks.',
     ],
     code: 'Settlement.settle_trade(match_id, ...)\n  -> buyer.require_auth()       ✓\n  -> seller.require_auth()      ✓\n  -> verify_proof(proof, signals) ✓\n  -> check nullifier not used     ✓\n  -> escrow[seller][asset] -= qty\n  -> escrow[buyer][asset]  += qty\n  -> escrow[buyer][pay]    -= price\n  -> escrow[seller][pay]   += price\n  -> store nullifier',
+    mermaid: `graph TD
+  A[settle_trade] --> B{buyer.require_auth}
+  A --> C{seller.require_auth}
+  B --> D{verify_proof}
+  C --> D
+  D --> E{nullifier unused?}
+  E --> F[Atomic Swap]
+  F --> G[seller asset -> buyer]
+  F --> H[buyer payment -> seller]
+  F --> I[store nullifier]`,
     note: 'Design note: Proof correctness alone does not authorize settlement. The contract enforces a layered model — require_auth() signatures from both parties, ZK proof verification, nullifier uniqueness, and whitelist root validation must all pass independently. A valid proof with unauthorized addresses is rejected at the signature layer before any funds move.',
   },
 ];
@@ -120,6 +161,7 @@ interface StepData {
   Animation: React.FC;
   description: string[];
   code: string;
+  mermaid?: string;
   privatePublic?: {
     private: string;
     public: string;
@@ -164,7 +206,7 @@ export default function App() {
           </div>
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-500">
             <a href="#walkthrough" className="hover:text-gray-900 transition-colors">Architecture</a>
-            <a href="#circuit" onClick={(e) => { e.preventDefault(); const el = document.getElementById('circuit'); if (el) { window.history.pushState(null, '', '#circuit'); el.scrollIntoView({ behavior: 'smooth' }); }}} className="hover:text-gray-900 transition-colors">ZK Circuit</a>
+            <a href="#circuit" className="hover:text-gray-900 transition-colors">ZK Circuit</a>
             <a href="#contracts" className="hover:text-gray-900 transition-colors">Contracts</a>
           </nav>
           <div className="flex items-center gap-4">
@@ -291,10 +333,16 @@ export default function App() {
                         </p>
                       ))}
 
-                      {/* Code block */}
-                      <div className="code-block mt-4 mb-4 max-w-lg">
-                        <pre className="whitespace-pre text-[12px] leading-relaxed">{step.code}</pre>
-                      </div>
+                      {/* Code block or Mermaid diagram */}
+                      {step.mermaid ? (
+                        <div className="mt-4 mb-4 max-w-lg">
+                          <MermaidDiagram source={step.mermaid} />
+                        </div>
+                      ) : (
+                        <div className="code-block mt-4 mb-4 max-w-lg">
+                          <pre className="whitespace-pre text-[12px] leading-relaxed">{step.code}</pre>
+                        </div>
+                      )}
 
                       {/* Private / Public callouts */}
                       {step.privatePublic && (
@@ -481,6 +529,18 @@ export default function App() {
                 Each contract has a specific responsibility. They communicate through cross-contract calls
                 on the Stellar blockchain.
               </p>
+            </div>
+
+            <div className="mb-12">
+              <MermaidDiagram
+                source={`graph LR
+  R[Registry] -->|whitelist_root| S[Settlement]
+  O[Orderbook] -->|commitments & matches| S
+  S -->|proof + signals| V[Verifier]
+  V -->|valid / invalid| S
+  S -->|mark_settled| O`}
+                className="border border-gray-200 rounded-xl"
+              />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

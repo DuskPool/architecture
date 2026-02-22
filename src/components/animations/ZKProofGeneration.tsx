@@ -45,7 +45,7 @@ export default function ZKProofGeneration() {
       </g>
 
       <g transform="translate(400, 225)">
-        <use href="#circuit" />
+        <use href="#zk-circuit-icon" />
         <text x="0" y="60" fill="#4b5563" fontSize="12" fontWeight="600" textAnchor="middle">ZK CIRCUIT (CIRCOM)</text>
 
         {/* Pulse effect */}

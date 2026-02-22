@@ -136,3 +136,11 @@ body {
 .code-block .string { color: #34d399; }
 .code-block .comment { color: #6b7280; }
 .code-block .number { color: #fbbf24; }
+
+/* Mermaid diagrams — scale SVG to fit container */
+.mermaid-diagram svg {
+  width: 100%;
+  height: auto;
+  min-height: 120px;
+  display: block;
+}
